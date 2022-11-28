@@ -8,8 +8,6 @@ start = end - datetime.timedelta(days=30)
 print(start, end)
 
 restaurants = [
-    ("Midtown", 4.0),
-    ("Buckhead", 3.5),
     ("Old Fourth Ward", 2.0), 
     ("GT Campus", 5.0),
     ("Cabbagetown", 3.5)
@@ -37,7 +35,7 @@ def mean(reviews):
     return sum(reviews) / float(len(reviews))
 
 reviews = []
-for i in range(1200):
+for i in range(2000):
     review = {}
     dt = random_dt()
     dish_name, dish_rating = random.choice(dishes)
