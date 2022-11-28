@@ -6,8 +6,8 @@ import numpy as np
 import altair as alt
 
 NONE = "No Selection"
-RATE_TYPES = ["food", "food_taste", "food_portion", "food_look", "service", "vibe", "overall"]
-SUMMARY_RATE_TYPES = ["overall", "food", "service", "vibe"]
+ID_COLS = ["time", "restaurant", "dish"]
+SUMMARY_COLS = ["overall", "food", "service", "vibe"]
 
 @st.cache
 def get_data():
@@ -15,65 +15,116 @@ def get_data():
     df["time"] = pd.to_datetime(df["time"])
     return df
 
-df = get_data()
-DISH_TYPES = list(df["dish"].unique())
-RESTAURANTS = list(df["restaurant"].unique())
+raw_df = get_data()[ID_COLS + SUMMARY_COLS]
+DISH_TYPES = list(raw_df["dish"].unique())
+RESTAURANTS = list(raw_df["restaurant"].unique())
 
-st.title("TapReviews Insights")
-# st.write(reviews)
+s_store = st.sidebar.selectbox("Choose Restaurant", ["All"] + RESTAURANTS)
+df = raw_df
+if s_store != "All":
+    df = df[df["restaurant"] == s_store]
+last_week = datetime.now() - timedelta(days=7)
+df_week = df[df["time"] > last_week]
+df_last_week = df[(df["time"] <= last_week) & (df["time"] > last_week - timedelta(days=7))]
+st.title("Overview Dashboard")
 
-dish_name = st.selectbox("Choose Dish", [NONE] + DISH_TYPES)
+st.subheader(f"Weekly Metrics for \"{s_store}\"")
 
-if dish_name != NONE:
-    dish_df = df[df["dish"] == dish_name]
-    st.subheader("Average Dish Rating")
-    st.text(f'{dish_df["food"].mean():.2f}')
-    st.text(f'{dish_df["food_taste"].mean():.2f}')
-    st.text(f'{dish_df["food_portion"].mean():.2f}')
-    st.text(f'{dish_df["food_look"].mean():.2f}')
-    st.subheader("Number of Reviews for Dish")
-    st.text(f'{len(dish_df)}')
-    st.subheader("Dish Rating Breakdown")
-    dish_histogram = np.histogram(dish_df["food"], bins=[1,2,3,4,5,6])[0]
-    st.bar_chart(dish_histogram)
+c0_0, c0_1, c0_2, c0_3, c0_4 = st.columns(5)
+with c0_0:
+    st.metric(
+        "\# Reviews", 
+        f'{len(df_week)}', 
+        f'{len(df_week) - len(df_last_week)}'
+    )
+with c0_1:
+    st.metric(
+        "Overall", 
+        f'{df_week["overall"].mean():.2f}',
+        f'{df_week["overall"].mean() - df_last_week["overall"].mean():.3f}'
+    )
+with c0_2:
+    st.metric(
+        "Food", 
+        f'{df_week["food"].mean():.2f}', 
+        f'{df_week["food"].mean() - df_last_week["food"].mean():.3f}'
+    )
+with c0_3:
+    st.metric(
+        "Service", 
+        f'{df_week["service"].mean():.2f}',
+        f'{df_week["service"].mean() - df_last_week["service"].mean():.3f}'
+    )
+with c0_4:
+    st.metric(
+        "Vibe", 
+        f'{df_week["vibe"].mean():.2f}',
+        f'{df_week["vibe"].mean() - df_last_week["vibe"].mean():.3f}'
+    )
 
+s_rating = st.selectbox("Choose Rating", SUMMARY_COLS)
+c1_0, c1_1 = st.columns(2)
+with c1_0:
+    st.header(f"{s_rating} Ratings by Hour of Day")
+    df_hourly = df.groupby(df["time"].dt.hour).mean(numeric_only=True).reset_index()
+    st.altair_chart(alt.Chart(df_hourly).mark_bar().encode(
+            x='time:O',
+            y=alt.Y(s_rating, scale=alt.Scale(domain=(0,5)))
+        ),
+        use_container_width=True
+    )
+with c1_1:
+    st.header(f"{s_rating} Ratings by Day of Week")
+    df_daily = df.groupby(df["time"].dt.day_of_week).mean(numeric_only=True).reset_index()
+    # st.write(df_daily)
+    # day_names =  [
+    #     "Monday",
+    #     "Tuesday",
+    #     "Wednesday",
+    #     "Thursday",
+    #     "Friday",
+    #     "Saturday",
+    #     "Sunday"
+    # ]
+    # st.bar_chart(df_daily[s_rating])
+    st.altair_chart(alt.Chart(df_daily).mark_bar().encode(
+            x='time:O',
+            y=alt.Y(s_rating, scale=alt.Scale(domain=(0,5), zero=False))
+        ),
+        use_container_width=True
+    )
+    # st.line_chart(df.groupby(df["time"].dt.day_of_week)["service"].mean(numeric_only=True))
 
-st.header("Average Dish Ratings")
-st.dataframe(df.groupby("dish")["food"].mean().sort_values(ascending=False))
+df_resample = df.set_index("time").resample('D').mean(numeric_only=True).reset_index()
+# st.header(f"{s_rating} Ratings Over Time")
+# st.altair_chart(alt.Chart(df_resample).mark_line().encode(
+#             x='time',
+#             y=alt.Y(s_rating, scale=alt.Scale(domain=(0,5), zero=False))
+#         ),
+#         use_container_width=True
+#     )
 
-# if dish_name != NONE:
-#     df[df["dish"] == dish_name].groupby(df["time"].dt.hour)["service"].sum()
-
-st.header("Average Service Ratings by Hour of Day")
-st.line_chart(df.groupby(df["time"].dt.hour)["service"].mean(numeric_only=True))
-
-st.header("Average Service Ratings by Day of Week")
-st.line_chart(df.groupby(df["time"].dt.day_of_week)["service"].mean(numeric_only=True))
-
-# st.header("Average Ratings Over Time")
-rate_type = st.selectbox("Choose Rating Type", RATE_TYPES)
-restaurant = st.selectbox("Choose Restaurant", [NONE] + RESTAURANTS)
-st.header(f"Ratings Over Time [{rate_type}]")
-    # rate_df = df[["time", "food", "food_taste", "food_portion", "food_look", "service", "vibe", "overall"]]
-rate_df = df
-if restaurant != NONE:
-    rate_df = rate_df[rate_df["restaurant"] == restaurant]
-    # rate_df = rate_df[rate_df["time"] > datetime.now() - timedelta(days=7)]
-rate_df = rate_df[["time"] + [rate_type]].set_index("time").resample('D').mean(numeric_only=True)
-st.line_chart(rate_df)
-
+st.subheader("Ratings Over Time")
 melt_df = pd.melt(
-    df.set_index("time")
-        .resample('D')
-        .mean(numeric_only=True)
-        .reset_index(), 
+    df_resample, 
     id_vars=["time"]
 )
 st.altair_chart(alt.Chart(melt_df).mark_line().encode(
-    x='time',
-    y=alt.Y('value', scale=alt.Scale(domain=(1,5))),
-    color="variable")
+        x='time',
+        y=alt.Y('value', scale=alt.Scale(domain=(1,5))),
+        color="variable"
+    ),
+    use_container_width=True
 )
+
+
+c2_0, c2_1 = st.columns(2)
+with c2_0:
+    st.subheader("Raw Data")
+    st.dataframe(raw_df, use_container_width=True)
+with c2_1:
+    st.subheader("Store averages")
+    st.dataframe(raw_df.groupby("restaurant").mean().sort_values(by="overall", ascending=False), use_container_width=True)
 
 # df[df["dish"] == dish_name]
 # df[df["time"].dt.hour == 9]

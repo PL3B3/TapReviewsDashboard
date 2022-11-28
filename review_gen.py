@@ -47,9 +47,9 @@ for i in range(2000):
     review['food_taste'] = get_review(4.5 if dt.weekday() in [3,4] else 3.5, 1)
     review['food_portion'] = get_review(3.5, 1)
     review['food_look'] = get_review(3.5, 1)
-    review['service'] = get_review(2.5 if (dt.hour >= 12 and dt.hour <= 15) and restaurant == "Buckhead" else 4.5, 1)
+    review['service'] = get_review(2.5 if (dt.hour >= 12 and dt.hour <= 15) and restaurant == "Cabbagetown" else 4.5, 1)
     review['vibe'] = get_review(restaurant_vibe, 1.5)
-    review['overall'] = get_review(mean([review['food'], review['service'], review['vibe']]), 1)
+    review['overall'] = get_review(1.0 + mean([review['food'], review['service'], review['vibe']]), 1)
     reviews.append(review)
 
 with open("reviews.json", "w") as f:

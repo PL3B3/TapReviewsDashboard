@@ -20,9 +20,6 @@ st.set_page_config(
 
 st.title("Dish Reviews Dashboard")
 
-NONE = "No Selection"
-RATE_TYPES = ["food", "food_taste", "food_portion", "food_look", "service", "vibe", "overall"]
-SUMMARY_RATE_TYPES = ["overall", "food", "service", "vibe"]
 ID_COLS = ["time", "restaurant", "dish"]
 FOOD_COLS = ["food", "food_taste", "food_portion", "food_look"]
 
@@ -32,14 +29,13 @@ def get_data():
     df["time"] = pd.to_datetime(df["time"])
     return df
 
-
-df = get_data()[ID_COLS + FOOD_COLS]
-DISH_TYPES = list(df["dish"].unique())
-RESTAURANTS = list(df["restaurant"].unique())
+raw_df = get_data()[ID_COLS + FOOD_COLS]
+DISH_TYPES = list(raw_df["dish"].unique())
+RESTAURANTS = list(raw_df["restaurant"].unique())
 
 s_dish = st.sidebar.selectbox("Choose Dish", DISH_TYPES)
 s_store = st.sidebar.selectbox("Choose Restaurant", ["All"] + RESTAURANTS)
-df = df[df["dish"] == s_dish]
+df = raw_df[raw_df["dish"] == s_dish]
 if s_store != "All":
     df = df[df["restaurant"] == s_store]
 
@@ -51,7 +47,7 @@ st.subheader(f"Weekly Metrics for \"{s_dish}\"")
 c0_0, c0_1, c0_2, c0_3, c0_4 = st.columns(5)
 with c0_0:
     st.metric(
-        "Number of Reviews", 
+        "\# Reviews", 
         f'{len(df_week)}', 
         f'{len(df_week) - len(df_last_week)}'
     )
@@ -110,11 +106,10 @@ with c1_2:
         use_container_width=True
     )
 
-st.subheader("Raw Data")
-st.dataframe(df, use_container_width=True)
-
-# st.subheader("Number of Reviews for Dish")
-# st.text(f'{len(dish_df)}')
-# st.subheader("Dish Rating Breakdown")
-# dish_histogram = np.histogram(dish_df["food"], bins=[1,2,3,4,5,6])[0]
-# st.bar_chart(dish_histogram)
+c2_0, c2_1 = st.columns(2)
+with c2_0:
+    st.subheader("Raw Data")
+    st.dataframe(raw_df, use_container_width=True)
+with c2_1:
+    st.subheader("Average Dish Ratings")
+    st.dataframe(raw_df.groupby("dish").mean().sort_values(by="food", ascending=False), use_container_width=True)
