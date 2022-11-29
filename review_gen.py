@@ -5,8 +5,6 @@ import json
 end = datetime.datetime.now()
 start = end - datetime.timedelta(days=30)
 
-print(start, end)
-
 restaurants = [
     ("Old Fourth Ward", 2.0), 
     ("GT Campus", 5.0),
@@ -35,7 +33,8 @@ def mean(reviews):
     return sum(reviews) / float(len(reviews))
 
 reviews = []
-for i in range(2000):
+
+def generate_review():
     review = {}
     dt = random_dt()
     dish_name, dish_rating = random.choice(dishes)
@@ -44,13 +43,16 @@ for i in range(2000):
     review['dish'] = dish_name
     review['restaurant'] = restaurant
     review['food'] = get_review(dish_rating, 1)
-    review['food_taste'] = get_review(4.5 if dt.weekday() in [3,4] else 3.5, 1)
+    review['food_taste'] = get_review(4.5 if dt.weekday() in [3,4,5] else 3.0, 1)
     review['food_portion'] = get_review(3.5, 1)
     review['food_look'] = get_review(3.5, 1)
     review['service'] = get_review(2.5 if (dt.hour >= 12 and dt.hour <= 15) and restaurant == "Cabbagetown" else 4.5, 1)
     review['vibe'] = get_review(restaurant_vibe, 1.5)
     review['overall'] = get_review(1.0 + mean([review['food'], review['service'], review['vibe']]), 1)
-    reviews.append(review)
+    return review
+
+for i in range(2000):
+    reviews.append(generate_review())
 
 with open("reviews.json", "w") as f:
     f.writelines(json.dumps(reviews, indent=2))
