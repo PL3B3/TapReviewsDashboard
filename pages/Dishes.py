@@ -33,7 +33,7 @@ FOOD_COLS = ["food", "food_taste", "food_portion", "food_look"]
 #     df["time"] = pd.to_datetime(df["time"])
 #     return df
 
-if not st.session_state.data:
+if "data" not in st.session_state:
     st.title("Loading Data")
     time.sleep(0.2)
     st.experimental_rerun()
