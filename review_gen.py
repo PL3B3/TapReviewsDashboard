@@ -3,7 +3,7 @@ import datetime
 import json
 
 end = datetime.datetime.now()
-start = end - datetime.timedelta(days=30)
+start = end - datetime.timedelta(days=15)
 
 restaurants = [
     ("Old Fourth Ward", 2.0), 

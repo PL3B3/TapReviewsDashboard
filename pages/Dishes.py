@@ -1,8 +1,17 @@
 from datetime import datetime, timedelta
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 import pandas as pd
 import numpy as np
 import altair as alt
+import time
+
+st.set_page_config(
+    page_title="Dish Reviews Dashboard",
+    page_icon="🍔",
+    layout="wide",
+)
+st_autorefresh(interval=3000, limit=100000)
 
 def rating_chart(data, x, y):
     st.altair_chart(alt.Chart(data).mark_line().encode(
@@ -12,20 +21,28 @@ def rating_chart(data, x, y):
         use_container_width=True
     )
 
-st.set_page_config(
-    page_title="Dish Reviews Dashboard",
-    page_icon="🍔",
-    layout="wide",
-)
 
 st.title("Dish Reviews Dashboard")
 
 ID_COLS = ["time", "restaurant", "dish"]
 FOOD_COLS = ["food", "food_taste", "food_portion", "food_look"]
 
-@st.cache
+# @st.cache
+# def get_data():
+#     df = pd.read_json("reviews.json")
+#     df["time"] = pd.to_datetime(df["time"])
+#     return df
+
+if not st.session_state.data:
+    st.title("Loading Data")
+    time.sleep(0.2)
+    st.experimental_rerun()
+
+for i in range(st.session_state.queue.qsize()):
+    st.session_state.data.append(st.session_state.queue.get())
+
 def get_data():
-    df = pd.read_json("reviews.json")
+    df = pd.DataFrame.from_records(st.session_state.data)
     df["time"] = pd.to_datetime(df["time"])
     return df
 

@@ -1,6 +1,7 @@
 # Project specific
 reviews.json
 *key.json
+.streamlit/secrets.toml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
