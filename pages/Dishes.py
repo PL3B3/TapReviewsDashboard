@@ -112,4 +112,4 @@ with c2_0:
     st.dataframe(raw_df, use_container_width=True)
 with c2_1:
     st.subheader("Average Dish Ratings")
-    st.dataframe(raw_df.groupby("dish").mean().sort_values(by="food", ascending=False), use_container_width=True)
+    st.dataframe(raw_df.groupby("dish").mean(numeric_only=True).sort_values(by="food", ascending=False), use_container_width=True)

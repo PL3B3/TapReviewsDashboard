@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 streamlit = "*"
 altair = "*"
+firebase-admin = "*"
+google-cloud-firestore = "*"
+streamlit-autorefresh = "*"
 
 [dev-packages]
 
