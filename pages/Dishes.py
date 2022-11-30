@@ -27,11 +27,11 @@ st.title("Dish Reviews Dashboard")
 ID_COLS = ["time", "restaurant", "dish"]
 FOOD_COLS = ["food", "food_taste", "food_portion", "food_look"]
 
-@st.cache
-def get_data():
-    df = pd.read_json("reviews.json")
-    df["time"] = pd.to_datetime(df["time"])
-    return df
+# @st.cache
+# def get_data():
+#     df = pd.read_json("reviews.json")
+#     df["time"] = pd.to_datetime(df["time"])
+#     return df
 
 # if "data" not in st.session_state:
 #     st.title("Loading Data")
@@ -47,7 +47,7 @@ def get_data():
 #     df["time"] = pd.to_datetime(df["time"])
 #     return df
 
-raw_df = get_data()[ID_COLS + FOOD_COLS]
+raw_df = st.session_state.data[ID_COLS + FOOD_COLS]
 DISH_TYPES = list(raw_df["dish"].unique())
 RESTAURANTS = list(raw_df["restaurant"].unique())
 

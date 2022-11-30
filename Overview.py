@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from review_gen import generate_review
 import json
 import time
 import streamlit as st
@@ -48,18 +49,24 @@ st.set_page_config(
 #     time.sleep(0.2)
 #     st.experimental_rerun()
 
-@st.cache
-def get_data():
+if not 'data' in st.session_state:
+    reviews = [generate_review() for i in range(2000)]
     df = pd.read_json("reviews.json")
     df["time"] = pd.to_datetime(df["time"])
-    return df
+    st.session_state.data = df
+
+# @st.cache
+# def get_data():
+#     df = pd.read_json("reviews.json")
+#     df["time"] = pd.to_datetime(df["time"])
+#     return df
 
 # def get_data():
 #     df = pd.DataFrame.from_records(st.session_state.data)
 #     df["time"] = pd.to_datetime(df["time"])
 #     return df
 
-raw_df = get_data()[ID_COLS + SUMMARY_COLS]
+raw_df = st.session_state.data[ID_COLS + SUMMARY_COLS]
 DISH_TYPES = list(raw_df["dish"].unique())
 RESTAURANTS = list(raw_df["restaurant"].unique())
 
