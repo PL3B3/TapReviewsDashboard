@@ -2,6 +2,7 @@ import random
 import datetime
 import json
 
+random.seed(hash("TapReviews"))
 end = datetime.datetime.now()
 start = end - datetime.timedelta(days=15)
 

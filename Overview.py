@@ -49,11 +49,12 @@ st.set_page_config(
 #     time.sleep(0.2)
 #     st.experimental_rerun()
 
-if not 'data' in st.session_state:
+@st.cache
+def get_data():
     reviews = [generate_review() for i in range(2000)]
     df = pd.read_json("reviews.json")
     df["time"] = pd.to_datetime(df["time"])
-    st.session_state.data = df
+    return df
 
 # @st.cache
 # def get_data():
@@ -66,7 +67,7 @@ if not 'data' in st.session_state:
 #     df["time"] = pd.to_datetime(df["time"])
 #     return df
 
-raw_df = st.session_state.data[ID_COLS + SUMMARY_COLS]
+raw_df = get_data()[ID_COLS + SUMMARY_COLS]
 DISH_TYPES = list(raw_df["dish"].unique())
 RESTAURANTS = list(raw_df["restaurant"].unique())
 

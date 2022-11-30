@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
-import streamlit as st
+from Overview import get_data
 from streamlit_autorefresh import st_autorefresh
+import streamlit as st
 import pandas as pd
 import numpy as np
 import altair as alt
@@ -47,7 +48,7 @@ FOOD_COLS = ["food", "food_taste", "food_portion", "food_look"]
 #     df["time"] = pd.to_datetime(df["time"])
 #     return df
 
-raw_df = st.session_state.data[ID_COLS + FOOD_COLS]
+raw_df = get_data()[ID_COLS + FOOD_COLS]
 DISH_TYPES = list(raw_df["dish"].unique())
 RESTAURANTS = list(raw_df["restaurant"].unique())
 
