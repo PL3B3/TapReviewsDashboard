@@ -25,11 +25,27 @@ batch = db.batch()
 #     print("blablabla")
 #     time.sleep(0.1)
 
-for i in range(5):
-    for j in range(100):
-        new_doc_ref = reviews.document()
-        batch.set(new_doc_ref, review_gen.generate_review())
-    batch.commit()
+new_doc_ref = reviews.document()
+new_review = {
+    'time': '2022-11-28 15:25:10.234328', 
+    'dish': 'Bacon Wrapped Pineapple', 
+    'restaurant': 'Cabbagetown', 
+    'food': 5, 
+    'food_taste': 4, 
+    'food_portion': 4, 
+    'food_look': 2, 
+    'service': 2, 
+    'vibe': 2, 
+    'overall': 2
+}
+# print(new_review)
+new_doc_ref.set(new_review)
+
+# for i in range(5):
+#     for j in range(100):
+#         new_doc_ref = reviews.document()
+#         batch.set(new_doc_ref, review_gen.generate_review())
+#     batch.commit()
 
 
 

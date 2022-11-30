@@ -17,7 +17,7 @@ st.set_page_config(
     page_title="Overview Dashboard",
     layout="wide",
 )
-st_autorefresh(interval=3000, limit=100000)
+# st_autorefresh(interval=3000, limit=100000)
 
 if 'review_ref' not in st.session_state:
     st.session_state.data = []
@@ -63,7 +63,7 @@ raw_df = get_data()[ID_COLS + SUMMARY_COLS]
 DISH_TYPES = list(raw_df["dish"].unique())
 RESTAURANTS = list(raw_df["restaurant"].unique())
 
-s_store = st.sidebar.selectbox("Choose Restaurant", ["All"] + RESTAURANTS)
+s_store = st.sidebar.selectbox("Choose Restaurant", ["All"] + RESTAURANTS, key=hash("first"))
 df = raw_df
 if s_store != "All":
     df = df[df["restaurant"] == s_store]

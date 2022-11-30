@@ -11,7 +11,7 @@ st.set_page_config(
     page_icon="🍔",
     layout="wide",
 )
-st_autorefresh(interval=3000, limit=100000)
+# st_autorefresh(interval=3000, limit=100000)
 
 def rating_chart(data, x, y):
     st.altair_chart(alt.Chart(data).mark_line().encode(
@@ -41,6 +41,7 @@ if "data" not in st.session_state:
 for i in range(st.session_state.queue.qsize()):
     st.session_state.data.append(st.session_state.queue.get())
 
+# st.write(len(st.session_state.data))
 def get_data():
     df = pd.DataFrame.from_records(st.session_state.data)
     df["time"] = pd.to_datetime(df["time"])
@@ -51,7 +52,7 @@ DISH_TYPES = list(raw_df["dish"].unique())
 RESTAURANTS = list(raw_df["restaurant"].unique())
 
 s_dish = st.sidebar.selectbox("Choose Dish", DISH_TYPES)
-s_store = st.sidebar.selectbox("Choose Restaurant", ["All"] + RESTAURANTS)
+s_store = st.sidebar.selectbox("Choose Restaurant", ["All"] + RESTAURANTS, key=hash("second"))
 df = raw_df[raw_df["dish"] == s_dish]
 if s_store != "All":
     df = df[df["restaurant"] == s_store]
