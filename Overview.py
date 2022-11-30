@@ -19,45 +19,45 @@ st.set_page_config(
 )
 # st_autorefresh(interval=3000, limit=100000)
 
-if 'review_ref' not in st.session_state:
-    st.session_state.data = []
-    cred = st.secrets["firestore_credentials"]
-    # with open("firebase_key.json") as secret:
-    #     cred = json.load(secret)
-    db = firestore.Client.from_service_account_info(cred)
-    review_ref = db.collection('review_test')
-    st.session_state.review_ref = review_ref
-    queue = Queue()
-    st.session_state.queue = queue
-    def on_snapshot(snapshot, changes, read_time):
-        print("Data Changed")
-        for change in changes:
-            if change.type.name == 'ADDED':
-                queue.put(change.document.to_dict())
-    review_ref.on_snapshot(on_snapshot)
+# if 'review_ref' not in st.session_state:
+#     st.session_state.data = []
+#     cred = st.secrets["firestore_credentials"]
+#     # with open("firebase_key.json") as secret:
+#     #     cred = json.load(secret)
+#     db = firestore.Client.from_service_account_info(cred)
+#     review_ref = db.collection('review_test')
+#     st.session_state.review_ref = review_ref
+#     queue = Queue()
+#     st.session_state.queue = queue
+#     def on_snapshot(snapshot, changes, read_time):
+#         print("Data Changed")
+#         for change in changes:
+#             if change.type.name == 'ADDED':
+#                 queue.put(change.document.to_dict())
+#     review_ref.on_snapshot(on_snapshot)
 
 
-if st.session_state.queue.qsize() > 0:
-    print("data added")
-for i in range(st.session_state.queue.qsize()):
-    st.session_state.data.append(st.session_state.queue.get())
+# if st.session_state.queue.qsize() > 0:
+#     print("data added")
+# for i in range(st.session_state.queue.qsize()):
+#     st.session_state.data.append(st.session_state.queue.get())
 # st.write(len(st.session_state.data))
 
-if not st.session_state.data:
-    st.title("Loading Data")
-    time.sleep(0.2)
-    st.experimental_rerun()
+# if not st.session_state.data:
+#     st.title("Loading Data")
+#     time.sleep(0.2)
+#     st.experimental_rerun()
 
-# @st.cache
-# def get_data():
-#     df = pd.read_json("reviews.json")
-#     df["time"] = pd.to_datetime(df["time"])
-#     return df
-
+@st.cache
 def get_data():
-    df = pd.DataFrame.from_records(st.session_state.data)
+    df = pd.read_json("reviews.json")
     df["time"] = pd.to_datetime(df["time"])
     return df
+
+# def get_data():
+#     df = pd.DataFrame.from_records(st.session_state.data)
+#     df["time"] = pd.to_datetime(df["time"])
+#     return df
 
 raw_df = get_data()[ID_COLS + SUMMARY_COLS]
 DISH_TYPES = list(raw_df["dish"].unique())
